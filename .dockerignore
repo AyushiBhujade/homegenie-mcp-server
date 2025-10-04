@@ -1,0 +1,63 @@
+# Git and version control
+.git
+.gitignore
+*.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing and coverage
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+htmlcov/
+
+# Documentation
+docs/
+*.rst
+
+# Development and build artifacts
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+logs/
+
+# Environment files (keep .env.example but ignore .env)
+.env
+.env.local
+.env.production
+
+# Temporary files
+*.tmp
+*.temp

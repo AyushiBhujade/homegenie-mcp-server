@@ -1,0 +1,49 @@
+name: homegenie-mcp-server
+type: service
+
+build:
+  type: build
+  build_source:
+    type: local
+  dockerfile_path: ./Dockerfile
+
+deploy:
+  type: service
+  ports:
+    - port: 8000
+      host: "0.0.0.0"
+  
+  resources:
+    cpu_request: 0.2
+    cpu_limit: 0.5
+    memory_request: 256
+    memory_limit: 512
+    
+  replicas:
+    min: 1
+    max: 3
+    
+  env:
+    PORT: "8000"
+    HOST: "0.0.0.0"
+    PYTHONUNBUFFERED: "1"
+    
+  health_check:
+    path: "/health"
+    port: 8000
+    
+  autoscaling:
+    enabled: true
+    target_cpu_utilization: 70
+    
+  liveness_probe:
+    path: "/health"
+    port: 8000
+    initial_delay_seconds: 30
+    period_seconds: 10
+    
+  readiness_probe:
+    path: "/health" 
+    port: 8000
+    initial_delay_seconds: 5
+    period_seconds: 5

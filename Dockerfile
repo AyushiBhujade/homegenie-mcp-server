@@ -4,13 +4,21 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Set environment variables
+# Set environment variables for production
 ENV PYTHONPATH=/app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+ENV HOST=0.0.0.0
 
-# Install system dependencies (minimal for Python MCP server)
-RUN apt-get update && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install system dependencies and security updates
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get purge -y --auto-remove
 
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
@@ -29,9 +37,12 @@ RUN adduser --disabled-password --gecos '' --uid 1000 mcpuser
 RUN chown -R mcpuser:mcpuser /app
 USER mcpuser
 
-# MCP servers typically use stdio communication, not HTTP
-# Remove port exposure and health check for stdio-based MCP server
+# Expose port for TrueFoundry deployment
+EXPOSE 8000
+
+# Health check for container orchestration
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # Default command to run the MCP server
-# Keep container running for MCP stdio communication
 CMD ["python", "homegenie_mcp_server.py"]

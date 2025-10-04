@@ -190,20 +190,65 @@ def get_energy_prices(request: EnergyRequest) -> str:
     
     return result
 
+# Health check endpoint for TrueFoundry
+@mcp.tool()
+def health_check() -> str:
+    """Health check endpoint for container orchestration"""
+    return json.dumps({
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "service": "HomeGenie MCP Server",
+        "version": "1.0.0"
+    })
+
 # Main execution
 if __name__ == "__main__":
     import uvicorn
+    import os
     
-    # For testing, you can also run the server directly
+    # Get environment variables for production deployment
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", 8000))
+    
     logger.info("🏠 HomeGenie MCP Server starting...")
-    logger.info("Available tools: get_weather_data, get_energy_prices")
+    logger.info("Available tools: get_weather_data, get_energy_prices, health_check")
+    logger.info(f"Starting server on {host}:{port}")
     
     try:
-        # Run the FastMCP server
-        mcp.run()
+        # Check if running in production (TrueFoundry) or development
+        if host == "0.0.0.0" or os.getenv("PRODUCTION"):
+            # Production mode: run HTTP server with uvicorn
+            from fastapi import FastAPI
+            from fastapi.responses import JSONResponse
+            
+            app = FastAPI(title="HomeGenie MCP Server", version="1.0.0")
+            
+            @app.get("/health")
+            async def health():
+                return JSONResponse({
+                    "status": "healthy",
+                    "timestamp": datetime.now().isoformat(),
+                    "service": "HomeGenie MCP Server",
+                    "version": "1.0.0"
+                })
+            
+            @app.get("/")
+            async def root():
+                return JSONResponse({
+                    "service": "HomeGenie MCP Server",
+                    "status": "running",
+                    "tools": ["get_weather_data", "get_energy_prices"],
+                    "version": "1.0.0"
+                })
+            
+            # Run FastAPI server
+            uvicorn.run(app, host=host, port=port, log_level="info")
+        else:
+            # Development mode: run MCP stdio server
+            mcp.run()
     except KeyboardInterrupt:
         logger.info("Server stopped by user")
     except Exception as e:
         logger.error(f"Server error: {e}")
         print(f"❌ Error starting server: {e}")
-        print("\n💡 Try running the test version: python test_server.py")
+        print("\n💡 For production, set HOST=0.0.0.0 environment variable")

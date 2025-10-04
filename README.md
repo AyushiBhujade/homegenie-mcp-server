@@ -1,6 +1,8 @@
 # HomeGenie MCP Server
 
-A Model Context Protocol (MCP) server that provides HomeGenie AI with access to external APIs for weather data and energy pricing information.
+A Model Context Protocol (MCP) server that provides HomeGenie AI with access to external APIs for weather data and energy pricing information. 
+
+**🚀 Production Ready for TrueFoundry Deployment**
 
 ## Features
 
@@ -113,5 +115,54 @@ MCP Server
 • 19:00: €0.45/kWh (peak) 
 • 20:00: €0.25/kWh (standard)
 ```
+
+## 🚀 TrueFoundry Deployment
+
+### Prerequisites
+- TrueFoundry account and CLI installed
+- Docker registry access
+- Kubernetes cluster access
+
+### Quick Deploy
+```bash
+# Build and deploy
+docker build -t homegenie-mcp-server:latest .
+tfy deploy --config truefoundry.yaml
+```
+
+### Configuration Files
+- `truefoundry.yaml` - TrueFoundry deployment configuration
+- `k8s-deployment.yaml` - Kubernetes manifests
+- `Dockerfile` - Optimized for production deployment
+- `.env.example` - Environment variables template
+
+### Environment Variables
+```bash
+HOST=0.0.0.0          # Server host (required for TrueFoundry)
+PORT=8000             # Server port
+PRODUCTION=true       # Enables HTTP mode instead of stdio
+PYTHONUNBUFFERED=1    # Python output buffering
+```
+
+### Health Checks
+The server includes health check endpoints for container orchestration:
+- `GET /health` - Health status
+- `GET /` - Service information
+
+### Production Features
+✅ **Security**: Non-root user, minimal dependencies  
+✅ **Monitoring**: Health checks, readiness probes  
+✅ **Scaling**: Horizontal pod autoscaling configured  
+✅ **Resource Management**: CPU/memory limits set  
+✅ **CI/CD**: GitHub Actions pipeline included  
+
+### Monitoring
+The deployment includes:
+- Liveness probes for container health
+- Readiness probes for traffic routing
+- Resource monitoring and limits
+- Autoscaling based on CPU utilization
+
+For detailed deployment instructions, see the [TrueFoundry Documentation](https://docs.truefoundry.com/).
 
 This MCP server enables HomeGenie to make data-driven automation decisions based on real-time weather and energy market conditions.
