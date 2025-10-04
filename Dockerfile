@@ -10,12 +10,20 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PORT=8000
 ENV HOST=0.0.0.0
+ENV NODE_ENV=production
+ENV PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
 
-# Install system dependencies and security updates
+# Install system dependencies and Node.js
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
+    gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && node --version \
+    && npm --version \
+    && npx --version \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get purge -y --auto-remove
@@ -37,12 +45,8 @@ RUN adduser --disabled-password --gecos '' --uid 1000 mcpuser
 RUN chown -R mcpuser:mcpuser /app
 USER mcpuser
 
-# Expose port for TrueFoundry deployment
+# Expose port for TrueFoundry deployment  
 EXPOSE 8000
-
-# Health check for container orchestration
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
 
 # Default command to run the MCP server
 CMD ["python", "homegenie_mcp_server.py"]
